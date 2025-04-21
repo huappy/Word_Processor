@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Word_Processor",
+    "\\Word_Processor\\Models",
+    "\\Word_Processor\\Services",
+    "\\Word_Processor\\ViewModels",
+    "\\Word_Processor\\Views"
+  ],
+  "SelectedNode": "\\Word_Processor\\MainWindow.xaml",
+  "PreviewInSolutionExplorer": false
+}
