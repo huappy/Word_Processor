@@ -4,6 +4,7 @@
     "\\Word_Processor",
     "\\Word_Processor\\Models",
     "\\Word_Processor\\Services",
+    "\\Word_Processor\\Themes",
     "\\Word_Processor\\ViewModels",
     "\\Word_Processor\\Views"
   ],

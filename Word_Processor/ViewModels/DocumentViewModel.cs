@@ -1,17 +1,23 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Microsoft.Win32;
 
 namespace Word_Processor.ViewModels
 {
     public class DocumentViewModel : INotifyPropertyChanged
     {
+        private DispatcherTimer _autoSaveTimer;
         private string _documentText = string.Empty;
+        private DateTime _lastSaved;
+        private bool _isAutoSaveEnabled = true;
+        private string _saveStatusIcon = "🟢"; // Default to saved
+        private string _saveStatusMessage = "Auto-save is on.";
+        public string LastSavedTooltip => $"Document was last saved at {LastSaved:T}";
 
-        private readonly DispatcherTimer _autoSaveTimer;
         public ICommand SaveCommand { get; }
         public ICommand LoadCommand { get; }
 
@@ -29,6 +35,73 @@ namespace Word_Processor.ViewModels
             }
         }
 
+        public DateTime LastSaved
+        {
+            get => _lastSaved;
+            private set
+            {
+                if (_lastSaved != value)
+                {
+                    _lastSaved = value;
+                    OnPropertyChanged(nameof(LastSaved));
+                }
+            }
+        }
+
+        public bool IsAutoSaveEnabled
+        {
+            get => _isAutoSaveEnabled;
+            set
+            {
+                if (_isAutoSaveEnabled != value)
+                {
+                    _isAutoSaveEnabled = value;
+                    OnPropertyChanged(nameof(IsAutoSaveEnabled));
+
+                    if (_isAutoSaveEnabled)
+                    {
+                        StartAutoSave();
+                        SaveStatusIcon = "🟢";
+                        SaveStatusMessage = "Auto-save is on.";
+                    }
+                    else
+                    {
+                        StopAutoSave();
+                        SaveStatusIcon = "🔴";
+                        SaveStatusMessage = "Auto-save is off.";
+                    }
+                        
+                }
+            }
+        }
+
+        public string SaveStatusIcon
+        {
+            get => _saveStatusIcon;
+            set
+            {
+                if (_saveStatusIcon != value)
+                {
+                    _saveStatusIcon = value;
+                    OnPropertyChanged(nameof(SaveStatusIcon));
+                }
+            }
+        }
+
+        public string SaveStatusMessage
+        {
+            get => _saveStatusMessage;
+            set
+            {
+                if (_saveStatusMessage != value)
+                {
+                    _saveStatusMessage = value;
+                    OnPropertyChanged(nameof(SaveStatusMessage));
+                }
+            }
+        }
+
+
         public int WordCount =>
             string.IsNullOrWhiteSpace(DocumentText)
                 ? 0
@@ -38,23 +111,15 @@ namespace Word_Processor.ViewModels
 
 
         //-------------------------FUNCTIONS--------------------------
-        
+
         //Document View Constructor
         public DocumentViewModel()
         {
             SaveCommand = new RelayCommand(_ => SaveDocument());
             LoadCommand = new RelayCommand(_ => LoadDocument());
 
-            _autoSaveTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMinutes(1)
-            };
-            _autoSaveTimer.Tick += AutoSave_Tick;
-            _autoSaveTimer.Start();
+            SetupAutoSave();
         }
-        protected void OnPropertyChanged(string propertyName) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
 
         private void LoadDocument()
         {
@@ -87,35 +152,56 @@ namespace Word_Processor.ViewModels
          * These functions are for the auto-save feature, which will use a timer to call
          * the UpdateLastSavedUI function to update the UI, and then creates a separate thread that saves the file.
          */
-        private void AutoSave_Tick(object? sender, EventArgs e)
+
+        private void SetupAutoSave()
         {
-            UpdateLastSavedTimeUI(); // Fast, UI-safe update
-            _ = SaveDocumentAsync(); // Fire-and-forget async file save
+            _autoSaveTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(30)
+            };
+            _autoSaveTimer.Tick += (s, e) => HandleAutoSave();
+            if (IsAutoSaveEnabled) _autoSaveTimer.Start();
         }
 
-        private void UpdateLastSavedTimeUI()
+
+        private void StartAutoSave() => _autoSaveTimer?.Start();
+        private void StopAutoSave() => _autoSaveTimer?.Stop();
+
+        private void HandleAutoSave()
         {
-            LastSaved = DateTime.Now.ToString("T"); // Bind this to your UI
+            SaveStatusIcon = "🟡";
+            SaveStatusMessage = "Saving...";
+
+            LastSaved = DateTime.Now;
+
+            Task.Run(() =>
+            {
+                SaveToFile();
+
+                // Back on UI thread to safely update UI
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    SaveStatusIcon = "🟢";
+                    SaveStatusMessage = $"Last saved at {LastSaved:T}";
+                });
+            });
         }
 
-        private async Task SaveDocumentAsync()
+        private void SaveToFile()
         {
-            string path = CurrentFilePath ?? "autosave.txt";
-            string content = DocumentText;
-
             try
             {
-                // Avoid UI thread blocking here!
-                await Task.Run(() =>
-                {
-                    File.WriteAllText(path, content);
-                });
+                string path = "autosave.txt"; // TODO: customize later
+                File.WriteAllText(path, DocumentText);
             }
             catch (Exception ex)
             {
-                // Log or show a non-blocking error message
+                // Optionally log the error
             }
         }
+
+    protected void OnPropertyChanged(string propertyName) =>
+    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
     }
 }
