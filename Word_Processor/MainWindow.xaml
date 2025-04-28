@@ -15,6 +15,13 @@
                           IsCheckable="True"
                           IsChecked="{Binding IsAutoSaveEnabled, Mode=TwoWay}" />
 			</MenuItem>
+
+			<MenuItem Header="Theme">
+				<MenuItem Header ="_ChangeTheme">
+					<MenuItem Header ="Dark Mode" Click="DarkModeClick"/>
+					<MenuItem Header ="Light Mode" Click="LightModeClick"/>
+				</MenuItem>
+			</MenuItem>
 		</Menu>
 
 		<!-- Main Content (TextBox, Word Count, etc.) -->

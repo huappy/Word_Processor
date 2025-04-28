@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
@@ -10,8 +11,9 @@ namespace Word_Processor.ViewModels
 {
     public class DocumentViewModel : INotifyPropertyChanged
     {
-        private DispatcherTimer _autoSaveTimer;
+        private DispatcherTimer? _autoSaveTimer;
         private string _documentText = string.Empty;
+        private bool _hasUnsavedChanges = false;
         private DateTime _lastSaved;
         private bool _isAutoSaveEnabled = true;
         private string _saveStatusIcon = "🟢"; // Default to saved
@@ -31,6 +33,7 @@ namespace Word_Processor.ViewModels
                     _documentText = value;
                     OnPropertyChanged(nameof(DocumentText));
                     OnPropertyChanged(nameof(WordCount));
+                    HasUnsavedChanges = true;
                 }
             }
         }
@@ -73,6 +76,19 @@ namespace Word_Processor.ViewModels
                         
                 }
             }
+
+            public bool HasUnsavedChanges
+        {
+            get => _hasUnsavedChanges;
+            set
+            {
+                if (_hasUnsavedChanges != value)
+                {
+                    _hasUnsavedChanges = value;
+                    OnPropertyChanged(nameof(HasUnsavedChanges));
+                }
+            }
+        }
         }
 
         public string SaveStatusIcon
@@ -145,6 +161,8 @@ namespace Word_Processor.ViewModels
             {
                 File.WriteAllText(dialog.FileName, DocumentText);
             }
+
+            _hasUnsavedChanges = false;
         }
 
 
@@ -193,10 +211,19 @@ namespace Word_Processor.ViewModels
             {
                 string path = "autosave.txt"; // TODO: customize later
                 File.WriteAllText(path, DocumentText);
+                HasUnsavedChanges = false;
             }
             catch (Exception ex)
             {
-                // Optionally log the error
+                Console.WriteLine("Error Saving Document: " + ex.ToString());
+
+                // Notify the user something went wrong
+                MessageBox.Show(
+                    "There was a problem saving your document.\nPlease try again or copy text to a differnet document\n\nDetails: " + ex.Message,
+                    "Document Save Loading Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning
+                    );
             }
         }
 

@@ -6,7 +6,9 @@
 	<Application.Resources>
 		<!-- Here's where we add the merged Resource Dictionary -->
 		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
+
+			<!-- merged dictionary is wehre styles, brushes, templates, and other reusable items are stored -->
+			<ResourceDictionary.MergedDictionaries>	
 				<ResourceDictionary Source="Themes/DarkTheme.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>

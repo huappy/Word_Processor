@@ -5,6 +5,7 @@ C:\Users\hapha\OneDrive\Documents\GitHub\Word_Processor\Word_Processor\bin\Debug
 C:\Users\hapha\OneDrive\Documents\GitHub\Word_Processor\Word_Processor\bin\Debug\net8.0-windows\Word_Processor.pdb
 C:\Users\hapha\OneDrive\Documents\GitHub\Word_Processor\Word_Processor\obj\Debug\net8.0-windows\MainWindow.baml
 C:\Users\hapha\OneDrive\Documents\GitHub\Word_Processor\Word_Processor\obj\Debug\net8.0-windows\Themes\DarkTheme.baml
+C:\Users\hapha\OneDrive\Documents\GitHub\Word_Processor\Word_Processor\obj\Debug\net8.0-windows\Themes\LightTheme.baml
 C:\Users\hapha\OneDrive\Documents\GitHub\Word_Processor\Word_Processor\obj\Debug\net8.0-windows\MainWindow.g.cs
 C:\Users\hapha\OneDrive\Documents\GitHub\Word_Processor\Word_Processor\obj\Debug\net8.0-windows\App.g.cs
 C:\Users\hapha\OneDrive\Documents\GitHub\Word_Processor\Word_Processor\obj\Debug\net8.0-windows\Word_Processor_MarkupCompile.cache
